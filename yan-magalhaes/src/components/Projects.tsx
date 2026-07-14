@@ -122,6 +122,59 @@ const projects = [
 ];
 
 
+function ProjectCard({
+  project: p,
+  isOpen,
+  onClick,
+}: {
+  project: (typeof projects)[0];
+  isOpen: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <div
+      onClick={onClick}
+      className={`group cursor-pointer overflow-hidden rounded-xl bg-surface shadow-sm transition-all duration-300 hover:shadow-md ${
+        isOpen ? "ring-2 ring-[var(--color-primary)]" : ""
+      }`}
+    >
+      <div
+        className="relative h-36 bg-cover bg-center transition duration-500 group-hover:scale-105"
+        style={{ backgroundImage: `url('${p.image}')` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1">
+          {p.tags.slice(0, 1).map((t) => (
+            <span
+              key={t}
+              className="rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-medium text-white backdrop-blur-sm"
+            >
+              {t}
+            </span>
+          ))}
+        </div>
+        {isOpen && (
+          <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-primary)]">
+            <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+              <path d="M1 3l3 3 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        )}
+      </div>
+      <div className="p-3">
+        <p className="mb-0.5 text-[9px] uppercase tracking-widest text-muted">{p.location}</p>
+        <h4
+          className="text-sm font-bold text-[var(--color-text)]"
+          style={{ fontFamily: "var(--font-playfair)" }}
+        >
+          {p.name}
+        </h4>
+        <p className="mt-1 text-[10px] leading-relaxed text-muted line-clamp-2">{p.description}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function Projects() {
   const [openId, setOpenId] = useState<number | null>(1);
 
@@ -146,69 +199,65 @@ export default function Projects() {
           </h2>
         </div>
 
-        {/* Expansão inline — acima dos cards */}
-        {openProject && (
-          <div className="mb-6">
-            <ProjectExpanded
-              project={openProject}
-              onClose={() => setOpenId(null)}
-            />
+        {/* ── DESKTOP: expanded acima, grid abaixo ── */}
+        <div className="hidden md:block">
+          {openProject && (
+            <div className="mb-6">
+              <ProjectExpanded project={openProject} onClose={() => setOpenId(null)} />
+            </div>
+          )}
+          <div className="grid grid-cols-3 gap-4 lg:grid-cols-5">
+            {projects.map((p) => (
+              <ProjectCard
+                key={p.id}
+                project={p}
+                isOpen={openId === p.id}
+                onClick={() => toggle(p.id)}
+              />
+            ))}
           </div>
-        )}
+        </div>
 
-        {/* Grid de cards */}
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
-          {projects.map((p) => {
-            const isOpen = openId === p.id;
-
-            return (
+        {/* ── MOBILE: carrossel de cards + expanded abaixo ── */}
+        <div className="md:hidden">
+          {/* Carrossel */}
+          <div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory">
+            {projects.map((p) => (
               <div
                 key={p.id}
-                onClick={() => toggle(p.id)}
-                className={`group cursor-pointer overflow-hidden rounded-xl bg-surface shadow-sm transition-all duration-300 hover:shadow-md ${
-                  isOpen ? "ring-2 ring-[var(--color-primary)]" : ""
-                }`}
+                className="w-[72vw] flex-shrink-0 snap-start"
+                onClick={() => setOpenId(p.id)}
               >
-                <div
-                  className="relative h-36 bg-cover bg-center transition duration-500 group-hover:scale-105"
-                  style={{ backgroundImage: `url('${p.image}')` }}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                  <div className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1">
-                    {p.tags.slice(0, 1).map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-medium text-white backdrop-blur-sm"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                  {isOpen && (
-                    <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-primary)]">
-                      <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                        <path d="M1 3l3 3 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    </div>
-                  )}
-                </div>
-                <div className="p-3">
-                  <p className="mb-0.5 text-[9px] uppercase tracking-widest text-muted">
-                    {p.location}
-                  </p>
-                  <h4
-                    className="text-sm font-bold text-[var(--color-text)]"
-                    style={{ fontFamily: "var(--font-playfair)" }}
-                  >
-                    {p.name}
-                  </h4>
-                  <p className="mt-1 text-[10px] leading-relaxed text-muted line-clamp-2">
-                    {p.description}
-                  </p>
-                </div>
+                <ProjectCard
+                  project={p}
+                  isOpen={openId === p.id}
+                  onClick={() => setOpenId(p.id)}
+                />
               </div>
-            );
-          })}
+            ))}
+          </div>
+
+          {/* Indicadores de paginação */}
+          <div className="mt-3 flex justify-center gap-1.5">
+            {projects.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setOpenId(p.id)}
+                className={`h-1.5 rounded-full transition-all ${
+                  openId === p.id
+                    ? "w-5 bg-[var(--color-primary)]"
+                    : "w-1.5 bg-[var(--color-border)]"
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Expanded abaixo do carrossel */}
+          {openProject && (
+            <div className="mt-5">
+              <ProjectExpanded project={openProject} onClose={() => setOpenId(null)} />
+            </div>
+          )}
         </div>
       </div>
     </section>
