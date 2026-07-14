@@ -35,7 +35,7 @@ export default function Header() {
             Yan Magalhães
           </span>
           <span className="text-[10px] uppercase tracking-[0.2em] text-white/50">
-            Geólogo Consultor
+            Geólogo
           </span>
         </a>
 

@@ -35,7 +35,7 @@ export default function About() {
 
             <div className="space-y-4 text-sm leading-relaxed text-white/60">
               <p>
-                Sou geólogo consultor com atuação no Cerrado e na Chapada dos
+                Sou geólogo com atuação no Cerrado e na Chapada dos
                 Veadeiros. Trabalho com dados precisos para que proprietários
                 rurais, organizações ambientais e construtores tomem decisões
                 com segurança sobre a terra.

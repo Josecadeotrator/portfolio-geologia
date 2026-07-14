@@ -43,7 +43,7 @@ export default function Hero() {
         </h1>
 
         <p className="mb-10 max-w-xl text-base text-white/70 md:text-lg">
-          Geólogo consultor no Cerrado e Chapada dos Veadeiros — aerolevantamento,
+          Geólogo no Cerrado e Chapada dos Veadeiros — aerolevantamento,
           georreferenciamento e análise ambiental com precisão técnica.
         </p>
 

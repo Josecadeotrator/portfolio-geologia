@@ -10,7 +10,7 @@ export default function Footer() {
             Yan Magalhães
           </p>
           <p className="text-xs text-white/40">
-            Geólogo Consultor · CREA 00000-D/GO
+            Geólogo · CREA 00000-D/GO
           </p>
         </div>
 

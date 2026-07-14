@@ -15,9 +15,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Yan Magalhães — Geólogo Consultor",
+  title: "Yan Magalhães — Geólogo",
   description:
-    "Aerolevantamento, georreferenciamento e consultoria ambiental no Cerrado e Chapada dos Veadeiros.",
+    "Aerolevantamento, georreferenciamento e análise ambiental no Cerrado e Chapada dos Veadeiros.",
 };
 
 export default function RootLayout({
