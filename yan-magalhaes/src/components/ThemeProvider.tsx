@@ -10,7 +10,7 @@ const ThemeContext = createContext<{
 }>({ theme: "cerrado", setTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("cerrado");
+  const [theme, setTheme] = useState<Theme>("terracota");
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
       <div data-theme={theme}>{children}</div>
