@@ -1,18 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import BeforeAfterSlider from "./BeforeAfterSlider";
 
 const Viewer3DLoader = dynamic(() => import("./Viewer3DLoader"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-64 items-center justify-center bg-[#0d1a09]">
+    <div className="flex h-[340px] items-center justify-center bg-[#0d1a09]">
       <p className="text-xs text-white/30">Carregando modelo 3D...</p>
     </div>
   ),
 });
 
-interface Project {
+export interface Project {
   id: number;
   name: string;
   narrative: string;
@@ -25,34 +26,186 @@ interface Project {
   gallery: string[];
 }
 
-export default function ProjectExpanded({ project, onClose }: { project: Project; onClose: () => void }) {
-  return (
-    <div className="col-span-full overflow-hidden rounded-2xl border border-theme bg-surface shadow-xl">
-      {/* Cabeçalho */}
-      <div className="grid md:grid-cols-2">
-        {/* Galeria / foto principal */}
-        <div className="relative min-h-[280px] md:min-h-[360px]">
-          <div
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url('${project.gallery[0]}')` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+// Item da galeria unificada: o primeiro é sempre o interativo, os demais são fotos
+type GalleryItem =
+  | { type: "viewer3d" }
+  | { type: "beforeafter"; before: string; after: string }
+  | { type: "map" }
+  | { type: "photo"; url: string; label?: string };
 
-          {/* Miniaturas */}
-          {project.gallery.length > 1 && (
-            <div className="absolute bottom-4 left-4 flex gap-2">
-              {project.gallery.map((img, i) => (
-                <div
+function buildGalleryItems(project: Project): GalleryItem[] {
+  const photos: GalleryItem[] = project.gallery.map((url) => ({
+    type: "photo",
+    url,
+  }));
+
+  if (project.highlight === "viewer3d") {
+    return [{ type: "viewer3d" }, ...photos];
+  }
+  if (project.highlight === "beforeafter") {
+    return [
+      { type: "beforeafter", before: project.gallery[0], after: project.gallery[1] ?? project.gallery[0] },
+      ...photos,
+    ];
+  }
+  if (project.highlight === "map") {
+    return [{ type: "map" }, ...photos];
+  }
+  return photos;
+}
+
+function GalleryMain({ item, project }: { item: GalleryItem; project: Project }) {
+  if (item.type === "viewer3d") {
+    return (
+      <div className="absolute inset-0 bg-[#0d1a09]">
+        <Viewer3DLoader compact />
+      </div>
+    );
+  }
+  if (item.type === "beforeafter") {
+    return (
+      <div className="absolute inset-0 flex items-center bg-[#0d1a09] p-4">
+        <div className="w-full">
+          <BeforeAfterSlider
+            before={item.before}
+            after={item.after}
+            beforeLabel="Levantamento topográfico"
+            afterLabel="Após terraplanagem"
+          />
+          <p className="mt-2 text-center text-[11px] text-white/40">Arraste para comparar</p>
+        </div>
+      </div>
+    );
+  }
+  if (item.type === "map") {
+    return (
+      <div
+        className="absolute inset-0 flex items-center justify-center bg-cover bg-center"
+        style={{ backgroundImage: `url('${project.gallery[0]}')` }}
+      >
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 rounded-xl border border-white/20 bg-black/60 p-5 backdrop-blur-sm">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/50">Legenda</p>
+          {[
+            { color: "#3d8c40", label: "Área RPPN (preservação)" },
+            { color: "#c9963b", label: "Área livre para uso" },
+            { color: "#e05c2a", label: "Pontos de construção" },
+          ].map((i) => (
+            <div key={i.label} className="mb-1.5 flex items-center gap-2">
+              <span className="h-3 w-3 rounded-sm" style={{ background: i.color }} />
+              <span className="text-xs text-white/80">{i.label}</span>
+            </div>
+          ))}
+          <p className="mt-3 text-[10px] text-white/30">Mapa real será inserido aqui</p>
+        </div>
+      </div>
+    );
+  }
+  // photo
+  return (
+    <div
+      className="absolute inset-0 bg-cover bg-center"
+      style={{ backgroundImage: `url('${item.url}')` }}
+    />
+  );
+}
+
+function ThumbnailIcon({ item, photo }: { item: GalleryItem; photo?: string }) {
+  if (item.type === "viewer3d") {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-[#1a2e10]">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#6b8f4e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+    );
+  }
+  if (item.type === "beforeafter") {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-[#1a1a1a] gap-0.5 overflow-hidden rounded">
+        <div className="h-full w-1/2 bg-cover bg-center" style={{ backgroundImage: `url('${item.before}')` }} />
+        <div className="h-full w-1/2 bg-cover bg-center" style={{ backgroundImage: `url('${item.after}')` }} />
+      </div>
+    );
+  }
+  if (item.type === "map") {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-[#1a2e10]">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M9 20l-5-2V4l5 2m0 14l6-2m-6 2V6m6 12l5 2V6l-5-2m0 14V4" stroke="#6b8f4e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </div>
+    );
+  }
+  return (
+    <div
+      className="h-full w-full bg-cover bg-center"
+      style={{ backgroundImage: `url('${item.url}')` }}
+    />
+  );
+}
+
+export default function ProjectExpanded({
+  project,
+  onClose,
+}: {
+  project: Project;
+  onClose: () => void;
+}) {
+  const items = buildGalleryItems(project);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const active = items[activeIdx];
+
+  return (
+    <div className="overflow-hidden rounded-2xl border border-theme bg-surface shadow-xl">
+      <div className="grid md:grid-cols-2">
+
+        {/* Lado esquerdo — galeria unificada */}
+        <div className="flex flex-col bg-[#0d1a09]">
+          {/* Área principal */}
+          <div className="relative flex-1" style={{ minHeight: 420 }}>
+            <GalleryMain item={active} project={project} />
+            {/* Label do item ativo */}
+            <div className="pointer-events-none absolute top-3 left-3">
+              {active.type === "viewer3d" && (
+                <span className="rounded-full border border-white/20 bg-black/50 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-white/60 backdrop-blur-sm">
+                  Modelo 3D
+                </span>
+              )}
+              {active.type === "beforeafter" && (
+                <span className="rounded-full border border-white/20 bg-black/50 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-white/60 backdrop-blur-sm">
+                  Antes / Depois
+                </span>
+              )}
+              {active.type === "map" && (
+                <span className="rounded-full border border-white/20 bg-black/50 px-3 py-1 text-[10px] font-medium uppercase tracking-widest text-white/60 backdrop-blur-sm">
+                  Zoneamento
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Thumbnails */}
+          {items.length > 1 && (
+            <div className="flex gap-2 overflow-x-auto px-3 pb-3 pt-2">
+              {items.map((item, i) => (
+                <button
                   key={i}
-                  className={`h-12 w-16 rounded-md bg-cover bg-center ring-2 ${i === 0 ? "ring-white" : "ring-white/30"}`}
-                  style={{ backgroundImage: `url('${img}')` }}
-                />
+                  onClick={() => setActiveIdx(i)}
+                  className={`relative h-14 w-20 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${
+                    i === activeIdx
+                      ? "border-[var(--color-primary-light)] opacity-100"
+                      : "border-white/10 opacity-50 hover:opacity-80"
+                  }`}
+                >
+                  <ThumbnailIcon item={item} />
+                </button>
               ))}
             </div>
           )}
         </div>
 
-        {/* Info */}
+        {/* Lado direito — info */}
         <div className="flex flex-col justify-between p-8">
           <div>
             <div className="mb-4 flex items-start justify-between">
@@ -81,7 +234,6 @@ export default function ProjectExpanded({ project, onClose }: { project: Project
             <p className="mb-4 text-sm italic text-primary">"{project.narrative}"</p>
             <p className="mb-6 text-sm leading-relaxed text-muted">{project.description}</p>
 
-            {/* Tags */}
             <div className="mb-6 flex flex-wrap gap-2">
               {project.tags.map((t) => (
                 <span
@@ -93,7 +245,6 @@ export default function ProjectExpanded({ project, onClose }: { project: Project
               ))}
             </div>
 
-            {/* Entregas */}
             <div>
               <p className="mb-3 text-[10px] font-semibold uppercase tracking-widest text-muted">
                 Produtos entregues
@@ -116,87 +267,6 @@ export default function ProjectExpanded({ project, onClose }: { project: Project
             Solicitar projeto similar
           </a>
         </div>
-      </div>
-
-      {/* Destaque interativo */}
-      <div className="border-t border-theme">
-        {project.highlight === "beforeafter" && (
-          <div className="p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
-              Antes e depois
-            </p>
-            <BeforeAfterSlider
-              before={project.gallery[0]}
-              after={project.gallery[1] ?? project.gallery[0]}
-              beforeLabel="Levantamento topográfico"
-              afterLabel="Após terraplanagem"
-            />
-            <p className="mt-3 text-center text-[11px] text-muted">
-              Arraste para comparar
-            </p>
-          </div>
-        )}
-
-        {project.highlight === "viewer3d" && (
-          <div>
-            <div className="border-b border-theme px-6 py-4">
-              <p className="text-xs font-semibold uppercase tracking-widest text-muted">
-                Modelo 3D do terreno
-              </p>
-            </div>
-            <Viewer3DLoader compact />
-          </div>
-        )}
-
-        {project.highlight === "gallery" && project.gallery.length > 1 && (
-          <div className="p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
-              Galeria do projeto
-            </p>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              {project.gallery.map((img, i) => (
-                <div
-                  key={i}
-                  className="aspect-video rounded-lg bg-cover bg-center"
-                  style={{ backgroundImage: `url('${img}')` }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {project.highlight === "map" && (
-          <div className="p-6">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
-              Zoneamento da propriedade
-            </p>
-            <div
-              className="relative flex aspect-video items-center justify-center overflow-hidden rounded-xl bg-cover bg-center"
-              style={{ backgroundImage: `url('${project.gallery[0]}')` }}
-            >
-              <div className="absolute inset-0 bg-black/40" />
-              {/* Legenda simulada */}
-              <div className="relative z-10 rounded-xl border border-white/20 bg-black/60 p-5 backdrop-blur-sm">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-white/50">
-                  Legenda
-                </p>
-                {[
-                  { color: "#3d8c40", label: "Área RPPN (preservação)" },
-                  { color: "#c9963b", label: "Área livre para uso" },
-                  { color: "#e05c2a", label: "Pontos de construção" },
-                ].map((item) => (
-                  <div key={item.label} className="flex items-center gap-2 mb-1.5">
-                    <span className="h-3 w-3 rounded-sm" style={{ background: item.color }} />
-                    <span className="text-xs text-white/80">{item.label}</span>
-                  </div>
-                ))}
-                <p className="mt-3 text-[10px] text-white/30">
-                  Mapa real será inserido aqui (GeoJSON/MapLibre)
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );
