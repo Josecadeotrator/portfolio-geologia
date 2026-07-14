@@ -45,7 +45,7 @@ export default function Contact() {
 
             <div className="space-y-4">
               {[
-                { icon: "📍", label: "Região de atuação", value: "Cerrado · Nordeste Goiano · Chapada dos Veadeiros" },
+                { icon: "📍", label: "Atuação", value: "Brasil" },
                 { icon: "✉️", label: "E-mail", value: "contato@yanmagalhaes.geo.br" },
                 { icon: "🪪", label: "CREA", value: "00000-D/GO" },
               ].map((item) => (

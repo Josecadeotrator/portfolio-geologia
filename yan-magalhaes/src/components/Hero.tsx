@@ -23,7 +23,7 @@ export default function Hero() {
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6 pb-24">
         {/* Tags */}
         <div className="mb-6 flex flex-wrap gap-2">
-          {["Drone", "Georreferenciamento", "Cerrado", "Chapada dos Veadeiros"].map(
+          {["Drone", "Georreferenciamento", "Mapeamento", "Ambiental"].map(
             (tag) => (
               <span
                 key={tag}
@@ -43,8 +43,7 @@ export default function Hero() {
         </h1>
 
         <p className="mb-10 max-w-xl text-base text-white/70 md:text-lg">
-          Geólogo no Cerrado e Chapada dos Veadeiros — aerolevantamento,
-          georreferenciamento e análise ambiental com precisão técnica.
+          Aerolevantamento, georreferenciamento e análise ambiental com precisão técnica.
         </p>
 
         <div className="flex flex-wrap gap-4">

@@ -195,7 +195,7 @@ export default function Projects() {
             className="max-w-xl text-3xl font-bold text-[var(--color-text)] md:text-4xl"
             style={{ fontFamily: "var(--font-playfair)" }}
           >
-            Trabalhos realizados no Cerrado e Chapada dos Veadeiros
+            Projetos realizados em campo
           </h2>
         </div>
 

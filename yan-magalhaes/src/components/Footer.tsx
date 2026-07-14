@@ -15,7 +15,7 @@ export default function Footer() {
         </div>
 
         <p className="text-xs text-white/30">
-          © {new Date().getFullYear()} · Cerrado · Chapada dos Veadeiros · GO
+          © {new Date().getFullYear()} · Brasil
         </p>
 
         <a

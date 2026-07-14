@@ -35,8 +35,7 @@ export default function About() {
 
             <div className="space-y-4 text-sm leading-relaxed text-white/60">
               <p>
-                Sou geólogo com atuação no Cerrado e na Chapada dos
-                Veadeiros. Trabalho com dados precisos para que proprietários
+                Sou geólogo com foco em dados precisos para que proprietários
                 rurais, organizações ambientais e construtores tomem decisões
                 com segurança sobre a terra.
               </p>
@@ -57,7 +56,7 @@ export default function About() {
 
             <div className="mt-10 flex flex-wrap gap-6">
               {[
-                { label: "Região", value: "Cerrado · Nordeste Goiano" },
+                { label: "Atuação", value: "Brasil" },
                 { label: "Tecnologia", value: "RTK · Drone · QGIS · Metashape" },
                 { label: "Contato", value: "E-mail direto" },
               ].map((item) => (
