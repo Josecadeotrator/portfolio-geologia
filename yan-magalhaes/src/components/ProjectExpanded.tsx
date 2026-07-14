@@ -260,12 +260,6 @@ export default function ProjectExpanded({
             </div>
           </div>
 
-          <a
-            href="#contato"
-            className="btn-primary mt-8 inline-block rounded-full px-6 py-2.5 text-sm font-semibold text-center"
-          >
-            Solicitar projeto similar
-          </a>
         </div>
       </div>
     </div>

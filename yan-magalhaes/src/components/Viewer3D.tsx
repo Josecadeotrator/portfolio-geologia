@@ -135,14 +135,7 @@ export default function Viewer3D({ compact = false }: { compact?: boolean }) {
 
       <Viewer3DCanvas height={480} />
 
-      <div className="mx-auto max-w-6xl px-6 pb-20 pt-12 text-center">
-        <a
-          href="#contato"
-          className="btn-primary inline-block rounded-full px-8 py-3 text-sm font-semibold"
-        >
-          Solicitar visualização do meu terreno
-        </a>
-      </div>
+      <div className="pb-20" />
     </section>
   );
 }
