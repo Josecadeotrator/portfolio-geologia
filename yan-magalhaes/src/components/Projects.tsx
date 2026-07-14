@@ -1,14 +1,35 @@
+"use client";
+
+import { useState } from "react";
+import dynamic from "next/dynamic";
+
+const ProjectExpanded = dynamic(() => import("./ProjectExpanded"), { ssr: false });
+
 const projects = [
   {
     id: 1,
     name: "Cavalcante",
     narrative: "Conhecer a terra antes de qualquer decisão",
     description:
-      "Delimitação completa de APPs de serra e hidrografia em área de 800 ha na Chapada dos Veadeiros. Modelo 3D, ortomosaico, MDE e mapa de benfeitorias.",
-    tags: ["Aerolevantamento", "APP", "Modelo 3D"],
-    image:
-      "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80",
+      "Levantamento completo com delimitação de APPs de serra e hidrografia local em área de 800 ha na Chapada dos Veadeiros.",
+    tags: ["Aerolevantamento", "APP", "Modelo 3D", "MDE"],
+    image: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80",
     location: "Cavalcante — GO",
+    deliverables: [
+      "Modelo 3D do terreno",
+      "Ortomosaico de alta resolução",
+      "Modelo Digital de Elevação (MDE)",
+      "Mapa topográfico",
+      "Mapa de situação com vias de acesso",
+      "Mapeamento de benfeitorias",
+      "Delimitação de APPs (serra e hidrografia)",
+    ],
+    highlight: "viewer3d" as const,
+    gallery: [
+      "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80",
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+    ],
   },
   {
     id: 2,
@@ -16,10 +37,20 @@ const projects = [
     narrative: "Da terra bruta ao novo bairro",
     description:
       "Levantamento topográfico completo de área urbana como base para planejamento e execução de novo bairro — terraplanagem e abertura do terreno.",
-    tags: ["Topografia", "Antes/Depois", "Planejamento urbano"],
-    image:
-      "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80",
+    tags: ["Topografia", "Planejamento urbano", "Antes/Depois"],
+    image: "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80",
     location: "Nordeste Goiano — GO",
+    deliverables: [
+      "Levantamento topográfico completo",
+      "Base para projeto de terraplanagem",
+      "Modelo do terreno pré-intervenção",
+      "Documentação técnica para licitação",
+    ],
+    highlight: "beforeafter" as const,
+    gallery: [
+      "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80",
+      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80",
+    ],
   },
   {
     id: 3,
@@ -27,21 +58,45 @@ const projects = [
     narrative: "Transformar terra em negócio",
     description:
       "Fracionamento e desmembramento de glebas para venda de lotes. Cálculo de captação de água por gravidade — infraestrutura hídrica sem bomba.",
-    tags: ["Georreferenciamento", "Glebas", "Hídrico"],
-    image:
-      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
+    tags: ["Georreferenciamento", "Glebas", "Hídrico", "Ortomosaico"],
+    image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
     location: "Chapada dos Veadeiros — GO",
+    deliverables: [
+      "Modelo 3D do terreno",
+      "Ortomosaico",
+      "Fracionamento e desmembramento de glebas",
+      "Cálculo de captação d'água por gravidade",
+      "Vídeos comerciais para venda dos lotes",
+    ],
+    highlight: "gallery" as const,
+    gallery: [
+      "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=800&q=80",
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
+      "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80",
+      "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=800&q=80",
+    ],
   },
   {
     id: 4,
     name: "Propriedade Ana",
     narrative: "Planejar o futuro com propósito",
     description:
-      "Planejamento espacial integrado: delimitação da área destinada à RPPN, identificação dos melhores pontos de construção e área livre para outros usos.",
-    tags: ["Conservação", "RPPN", "Zoneamento"],
-    image:
-      "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80",
+      "Planejamento espacial integrado: delimitação da área RPPN, identificação dos melhores pontos de construção e área livre para outros usos.",
+    tags: ["Conservação", "RPPN", "Zoneamento", "Ambiental"],
+    image: "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80",
     location: "APA do Pouso Alto — GO",
+    deliverables: [
+      "Modelo 3D do terreno",
+      "Ortomosaico",
+      "Delimitação da área RPPN",
+      "Identificação de pontos de construção",
+      "Mapa de zoneamento integrado",
+    ],
+    highlight: "map" as const,
+    gallery: [
+      "https://images.unsplash.com/photo-1448375240586-882707db888b?w=800&q=80",
+      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
+    ],
   },
   {
     id: 5,
@@ -50,13 +105,32 @@ const projects = [
     description:
       "Modelo 3D urbano para construção civil e documentação técnica para outorga hídrica — perfuração de poço com processo aprovado.",
     tags: ["Outorga hídrica", "Modelo 3D", "Urbano"],
-    image:
-      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80",
+    image: "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80",
     location: "Goiás — GO",
+    deliverables: [
+      "Modelo 3D urbano para construção civil",
+      "Levantamento para outorga hídrica",
+      "Documentação técnica para perfuração de poço",
+      "Outorga aprovada",
+    ],
+    highlight: "gallery" as const,
+    gallery: [
+      "https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=80",
+      "https://images.unsplash.com/photo-1559339352-11d035aa65de?w=800&q=80",
+    ],
   },
 ];
 
+
 export default function Projects() {
+  const [openId, setOpenId] = useState<number | null>(1);
+
+  function toggle(id: number) {
+    setOpenId((prev) => (prev === id ? null : id));
+  }
+
+  const openProject = projects.find((p) => p.id === openId) ?? null;
+
   return (
     <section id="projetos" className="bg-page py-24">
       <div className="mx-auto max-w-6xl px-6">
@@ -72,86 +146,69 @@ export default function Projects() {
           </h2>
         </div>
 
-        {/* Projeto destaque */}
-        <div className="mb-8 overflow-hidden rounded-2xl">
-          <div className="grid md:grid-cols-2">
-            <div
-              className="relative min-h-[320px] bg-cover bg-center md:min-h-[440px]"
-              style={{ backgroundImage: `url('${projects[0].image}')` }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent" />
-              <div className="absolute bottom-6 left-6">
-                {projects[0].tags.map((t) => (
-                  <span
-                    key={t}
-                    className="mr-2 rounded-full bg-white/15 px-3 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="flex flex-col justify-center bg-surface p-10">
-              <p className="mb-2 text-xs uppercase tracking-widest text-muted">
-                {projects[0].location}
-              </p>
-              <h3
-                className="mb-2 text-2xl font-bold text-[var(--color-text)]"
-                style={{ fontFamily: "var(--font-playfair)" }}
-              >
-                {projects[0].name}
-              </h3>
-              <p className="mb-4 text-sm italic text-primary">
-                "{projects[0].narrative}"
-              </p>
-              <p className="text-sm leading-relaxed text-muted">
-                {projects[0].description}
-              </p>
-            </div>
+        {/* Expansão inline — acima dos cards */}
+        {openProject && (
+          <div className="mb-6">
+            <ProjectExpanded
+              project={openProject}
+              onClose={() => setOpenId(null)}
+            />
           </div>
-        </div>
+        )}
 
-        {/* Grid 2x2 */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {projects.slice(1).map((p) => (
-            <div
-              key={p.id}
-              className="group overflow-hidden rounded-xl bg-surface shadow-sm transition hover:shadow-md"
-            >
+        {/* Grid de cards */}
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-5">
+          {projects.map((p) => {
+            const isOpen = openId === p.id;
+
+            return (
               <div
-                className="relative h-44 bg-cover bg-center transition duration-500 group-hover:scale-105"
-                style={{ backgroundImage: `url('${p.image}')` }}
+                key={p.id}
+                onClick={() => toggle(p.id)}
+                className={`group cursor-pointer overflow-hidden rounded-xl bg-surface shadow-sm transition-all duration-300 hover:shadow-md ${
+                  isOpen ? "ring-2 ring-[var(--color-primary)]" : ""
+                }`}
               >
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                <div className="absolute bottom-3 left-3 right-3">
-                  <div className="flex flex-wrap gap-1">
-                    {p.tags.slice(0, 2).map((t) => (
+                <div
+                  className="relative h-36 bg-cover bg-center transition duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: `url('${p.image}')` }}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                  <div className="absolute bottom-2 left-2 right-2 flex flex-wrap gap-1">
+                    {p.tags.slice(0, 1).map((t) => (
                       <span
                         key={t}
-                        className="rounded-full bg-white/15 px-2 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm"
+                        className="rounded-full bg-white/15 px-2 py-0.5 text-[9px] font-medium text-white backdrop-blur-sm"
                       >
                         {t}
                       </span>
                     ))}
                   </div>
+                  {isOpen && (
+                    <div className="absolute top-2 right-2 flex h-5 w-5 items-center justify-center rounded-full bg-[var(--color-primary)]">
+                      <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                        <path d="M1 3l3 3 3-3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                  )}
+                </div>
+                <div className="p-3">
+                  <p className="mb-0.5 text-[9px] uppercase tracking-widest text-muted">
+                    {p.location}
+                  </p>
+                  <h4
+                    className="text-sm font-bold text-[var(--color-text)]"
+                    style={{ fontFamily: "var(--font-playfair)" }}
+                  >
+                    {p.name}
+                  </h4>
+                  <p className="mt-1 text-[10px] leading-relaxed text-muted line-clamp-2">
+                    {p.description}
+                  </p>
                 </div>
               </div>
-              <div className="p-5">
-                <p className="mb-0.5 text-[10px] uppercase tracking-widest text-muted">
-                  {p.location}
-                </p>
-                <h4
-                  className="mb-2 text-base font-bold text-[var(--color-text)]"
-                  style={{ fontFamily: "var(--font-playfair)" }}
-                >
-                  {p.name}
-                </h4>
-                <p className="text-xs leading-relaxed text-muted line-clamp-3">
-                  {p.description}
-                </p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

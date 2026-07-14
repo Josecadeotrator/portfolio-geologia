@@ -75,7 +75,44 @@ function WireframeTerrain() {
   );
 }
 
-export default function Viewer3D() {
+function Viewer3DCanvas({ height = 480 }: { height?: number }) {
+  return (
+    <div className="relative w-full" style={{ height }}>
+      <Canvas
+        camera={{ position: [0, 30, 50], fov: 45 }}
+        style={{ background: "transparent" }}
+      >
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[10, 20, 10]} intensity={1.2} color="#a8d08a" />
+        <directionalLight position={[-10, 5, -10]} intensity={0.3} color="#4a7030" />
+        <TerrainMesh />
+        <WireframeTerrain />
+        <OrbitControls
+          enablePan={false}
+          minPolarAngle={0.3}
+          maxPolarAngle={Math.PI / 2.2}
+          minDistance={20}
+          maxDistance={90}
+        />
+      </Canvas>
+      <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-black/50 px-4 py-1.5 backdrop-blur-sm">
+        <p className="text-xs text-white/50">
+          Terreno simulado — modelo 3D real será inserido aqui
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default function Viewer3D({ compact = false }: { compact?: boolean }) {
+  if (compact) {
+    return (
+      <div className="bg-[#0d1a09]">
+        <Viewer3DCanvas height={300} />
+      </div>
+    );
+  }
+
   return (
     <section id="visualizar" className="relative overflow-hidden bg-[#0d1a09] py-0">
       <div className="mx-auto max-w-6xl px-6 py-20">
@@ -96,33 +133,7 @@ export default function Viewer3D() {
         </div>
       </div>
 
-      {/* Canvas 3D */}
-      <div className="relative h-[480px] w-full">
-        <Canvas
-          camera={{ position: [0, 30, 50], fov: 45 }}
-          style={{ background: "transparent" }}
-        >
-          <ambientLight intensity={0.4} />
-          <directionalLight position={[10, 20, 10]} intensity={1.2} color="#a8d08a" />
-          <directionalLight position={[-10, 5, -10]} intensity={0.3} color="#4a7030" />
-          <TerrainMesh />
-          <WireframeTerrain />
-          <OrbitControls
-            enablePan={false}
-            minPolarAngle={0.3}
-            maxPolarAngle={Math.PI / 2.2}
-            minDistance={20}
-            maxDistance={90}
-          />
-        </Canvas>
-
-        {/* Label overlay */}
-        <div className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 rounded-full border border-white/10 bg-black/50 px-4 py-1.5 backdrop-blur-sm">
-          <p className="text-xs text-white/50">
-            Terreno simulado — modelo 3D real do projeto será inserido aqui
-          </p>
-        </div>
-      </div>
+      <Viewer3DCanvas height={480} />
 
       <div className="mx-auto max-w-6xl px-6 pb-20 pt-12 text-center">
         <a

@@ -11,6 +11,6 @@ const Viewer3D = dynamic(() => import("./Viewer3D"), {
   ),
 });
 
-export default function Viewer3DLoader() {
-  return <Viewer3D />;
+export default function Viewer3DLoader({ compact = false }: { compact?: boolean }) {
+  return <Viewer3D compact={compact} />;
 }
