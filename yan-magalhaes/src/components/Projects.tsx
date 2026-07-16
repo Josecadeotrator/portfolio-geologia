@@ -8,21 +8,23 @@ const ProjectExpanded = dynamic(() => import("./ProjectExpanded"), { ssr: false 
 const projects = [
   {
     id: 1,
-    name: "Cavalcante",
+    name: "Colinas do Sul",
     narrative: "Conhecer a terra antes de qualquer decisão",
     description:
-      "Levantamento completo com delimitação de APPs de serra e hidrografia local em área de 800 ha na Chapada dos Veadeiros.",
-    tags: ["Aerolevantamento", "APP", "Modelo 3D", "MDE"],
+      "Levantamento completo com delimitação de APPs de córregos e grotas em área de 6 ha.",
+    tags: ["Aerolevantamento", "APP", "Modelo 3D", "MDE", "MDT"],
     image: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=800&q=80",
-    location: "Cavalcante — GO",
+    location: "Colinas do Sul — GO",
     deliverables: [
       "Modelo 3D do terreno",
       "Ortomosaico de alta resolução",
       "Modelo Digital de Elevação (MDE)",
-      "Mapa topográfico",
+      "Modelo Digital de Terreno (MDT)",
+      "Hidrografia e escoamento superficial",
+      "Curvas de nível",
       "Mapa de situação com vias de acesso",
       "Mapeamento de benfeitorias",
-      "Delimitação de APPs (serra e hidrografia)",
+      "Delimitação de APPs (córregos e grotas)",
     ],
     highlight: "viewer3d" as const,
     gallery: [

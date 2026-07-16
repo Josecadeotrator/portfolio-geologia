@@ -78,7 +78,16 @@ function Viewer3DCanvas({ height = 480 }: { height?: number }) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
 
   return (
-    <div className="relative w-full" style={{ height }}>
+    <div
+      className="relative w-full"
+      style={{ height }}
+      onMouseDown={(e) => {
+        // Impede o autoscroll nativo do navegador ao clicar com o botão do
+        // meio, que senão compete com o pan do OrbitControls.
+        if (e.button === 1) e.preventDefault();
+      }}
+      onAuxClick={(e) => e.preventDefault()}
+    >
       <Canvas
         camera={{ position: [0, 30, 50], fov: 45 }}
         style={{ background: "transparent" }}
@@ -89,7 +98,13 @@ function Viewer3DCanvas({ height = 480 }: { height?: number }) {
         </Suspense>
         <OrbitControls
           ref={controlsRef}
-          enablePan={false}
+          enablePan
+          screenSpacePanning
+          mouseButtons={{
+            LEFT: THREE.MOUSE.ROTATE,
+            MIDDLE: THREE.MOUSE.PAN,
+            RIGHT: THREE.MOUSE.PAN,
+          }}
           minPolarAngle={0.3}
           maxPolarAngle={Math.PI / 2.2}
         />
@@ -126,8 +141,9 @@ export default function Viewer3D({ compact = false }: { compact?: boolean }) {
             Seu terreno em três dimensões
           </h2>
           <p className="mt-3 max-w-lg text-sm text-white/50">
-            Modelo 3D interativo — arraste para rotacionar, scroll para zoom.
-            Este é o modelo gerado pelo drone da propriedade Pedra Furada.
+            Modelo 3D interativo — arraste para rotacionar, scroll para zoom,
+            clique com a rodinha para mover. Este é o modelo gerado pelo
+            drone da propriedade Pedra Furada.
           </p>
         </div>
       </div>
