@@ -13,17 +13,22 @@ type ModelSlide = {
   caption: string;
 };
 
+// useGLTF recebe strings soltas (não passam pelo pipeline de assets do
+// Next), então precisam do basePath manualmente — ver next.config.ts.
+const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const DRACO_PATH = `${BASE_PATH}/draco/`;
+
 const MODELS: ModelSlide[] = [
   {
     id: "pedra-furada",
     name: "Pedra Furada",
-    url: "/models/pedra-furada-terreno.glb",
+    url: `${BASE_PATH}/models/pedra-furada-terreno.glb`,
     caption: "Modelo real — Pedra Furada, gerado por drone",
   },
   {
     id: "fazenda-sossego",
     name: "Fazenda Sossego",
-    url: "/models/fazenda-sossego-terreno.glb",
+    url: `${BASE_PATH}/models/fazenda-sossego-terreno.glb`,
     caption: "Modelo real — Fazenda Sossego, gerado por drone",
   },
 ];
@@ -40,7 +45,7 @@ function TerrainModel({
   url: string;
   controlsRef: React.RefObject<OrbitControlsImpl | null>;
 }) {
-  const { scene } = useGLTF(url, "/draco/");
+  const { scene } = useGLTF(url, DRACO_PATH);
   const cloned = useMemo(() => scene.clone(true), [scene]);
   const get = useThree((state) => state.get);
 
@@ -231,5 +236,5 @@ export default function Viewer3D({ compact = false }: { compact?: boolean }) {
 }
 
 for (const slide of MODELS) {
-  useGLTF.preload(slide.url, "/draco/");
+  useGLTF.preload(slide.url, DRACO_PATH);
 }
