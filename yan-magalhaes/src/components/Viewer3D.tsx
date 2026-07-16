@@ -23,7 +23,17 @@ function TerrainModel({
   const get = useThree((state) => state.get);
 
   useLayoutEffect(() => {
-    const { camera } = get();
+    const { camera, gl } = get();
+
+    // Sem filtro anisotrópico a textura fica borrada/blocuda no ângulo
+    // rasante da vista aérea, especialmente longe da câmera.
+    const maxAnisotropy = gl.capabilities.getMaxAnisotropy();
+    cloned.traverse((child) => {
+      if (!(child instanceof THREE.Mesh)) return;
+      const material = child.material as THREE.MeshStandardMaterial;
+      if (material.map) material.map.anisotropy = maxAnisotropy;
+    });
+
     const box = new THREE.Box3().setFromObject(cloned);
     const size = box.getSize(new THREE.Vector3());
     const center = box.getCenter(new THREE.Vector3());
@@ -38,7 +48,8 @@ function TerrainModel({
       center.y + fitDistance * Math.cos(VIEW_POLAR),
       center.z + fitDistance * Math.sin(VIEW_POLAR) * Math.cos(VIEW_AZIMUTH)
     );
-    perspective.near = fitDistance / 100;
+    // Near plane bem baixo para permitir zoom próximo sem cortar geometria.
+    perspective.near = 0.05;
     perspective.far = fitDistance * 10;
     perspective.updateProjectionMatrix();
     camera.lookAt(center);
@@ -46,7 +57,7 @@ function TerrainModel({
     const controls = controlsRef.current;
     if (controls) {
       controls.target.copy(center);
-      controls.minDistance = fitDistance * 0.3;
+      controls.minDistance = 0.5;
       controls.maxDistance = fitDistance * 2.5;
       controls.update();
     }
@@ -83,7 +94,7 @@ function Viewer3DCanvas({ height = 480 }: { height?: number }) {
       style={{ height }}
       onMouseDown={(e) => {
         // Impede o autoscroll nativo do navegador ao clicar com o botão do
-        // meio, que senão compete com o pan do OrbitControls.
+        // meio, que senão compete com o controle de rotação do OrbitControls.
         if (e.button === 1) e.preventDefault();
       }}
       onAuxClick={(e) => e.preventDefault()}
@@ -101,8 +112,8 @@ function Viewer3DCanvas({ height = 480 }: { height?: number }) {
           enablePan
           screenSpacePanning
           mouseButtons={{
-            LEFT: THREE.MOUSE.ROTATE,
-            MIDDLE: THREE.MOUSE.PAN,
+            LEFT: THREE.MOUSE.PAN,
+            MIDDLE: THREE.MOUSE.ROTATE,
             RIGHT: THREE.MOUSE.PAN,
           }}
           minPolarAngle={0.3}
@@ -141,9 +152,9 @@ export default function Viewer3D({ compact = false }: { compact?: boolean }) {
             Seu terreno em três dimensões
           </h2>
           <p className="mt-3 max-w-lg text-sm text-white/50">
-            Modelo 3D interativo — arraste para rotacionar, scroll para zoom,
-            clique com a rodinha para mover. Este é o modelo gerado pelo
-            drone da propriedade Pedra Furada.
+            Modelo 3D interativo — arraste para mover, scroll para zoom,
+            clique com a rodinha para rotacionar. Este é o modelo gerado
+            pelo drone da propriedade Pedra Furada.
           </p>
         </div>
       </div>
