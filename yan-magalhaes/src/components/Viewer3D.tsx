@@ -11,6 +11,10 @@ type ModelSlide = {
   name: string;
   url: string;
   caption: string;
+  // Vista inicial fixa (ajustada manualmente); quando ausente, cai no
+  // enquadramento automático calculado a partir do bounding box.
+  initialCameraPosition?: [number, number, number];
+  initialCameraTarget?: [number, number, number];
 };
 
 // useGLTF recebe strings soltas (não passam pelo pipeline de assets do
@@ -20,16 +24,12 @@ const DRACO_PATH = `${BASE_PATH}/draco/`;
 
 const MODELS: ModelSlide[] = [
   {
-    id: "pedra-furada",
-    name: "Pedra Furada",
-    url: `${BASE_PATH}/models/pedra-furada-terreno.glb`,
-    caption: "Modelo real — Pedra Furada, gerado por drone",
-  },
-  {
     id: "fazenda-sossego",
     name: "Fazenda Sossego",
     url: `${BASE_PATH}/models/fazenda-sossego-terreno.glb`,
     caption: "Modelo real — Fazenda Sossego, gerado por drone",
+    initialCameraPosition: [2436.5996478041598, 1176.1868145851327, -1036.1427225015075],
+    initialCameraTarget: [304.489295218681, -312.8402525450064, -306.24591859599747],
   },
 ];
 
@@ -39,13 +39,13 @@ const VIEW_AZIMUTH = 0.5; // rad, ~29° em torno do eixo vertical
 const VIEW_POLAR = 1.0; // rad, ~57° a partir do topo (vista de cima em diagonal)
 
 function TerrainModel({
-  url,
+  model,
   controlsRef,
 }: {
-  url: string;
+  model: ModelSlide;
   controlsRef: React.RefObject<OrbitControlsImpl | null>;
 }) {
-  const { scene } = useGLTF(url, DRACO_PATH);
+  const { scene } = useGLTF(model.url, DRACO_PATH);
   const cloned = useMemo(() => scene.clone(true), [scene]);
   const get = useThree((state) => state.get);
 
@@ -63,18 +63,26 @@ function TerrainModel({
 
     const box = new THREE.Box3().setFromObject(cloned);
     const size = box.getSize(new THREE.Vector3());
-    const center = box.getCenter(new THREE.Vector3());
+    const boxCenter = box.getCenter(new THREE.Vector3());
 
     const perspective = camera as THREE.PerspectiveCamera;
     const maxDim = Math.max(size.x, size.z);
     const fitDistance =
       (maxDim / 2 / Math.tan((perspective.fov * Math.PI) / 360)) * 1.5;
 
-    camera.position.set(
-      center.x + fitDistance * Math.sin(VIEW_POLAR) * Math.sin(VIEW_AZIMUTH),
-      center.y + fitDistance * Math.cos(VIEW_POLAR),
-      center.z + fitDistance * Math.sin(VIEW_POLAR) * Math.cos(VIEW_AZIMUTH)
-    );
+    const center = model.initialCameraTarget
+      ? new THREE.Vector3(...model.initialCameraTarget)
+      : boxCenter;
+
+    if (model.initialCameraPosition) {
+      camera.position.set(...model.initialCameraPosition);
+    } else {
+      camera.position.set(
+        center.x + fitDistance * Math.sin(VIEW_POLAR) * Math.sin(VIEW_AZIMUTH),
+        center.y + fitDistance * Math.cos(VIEW_POLAR),
+        center.z + fitDistance * Math.sin(VIEW_POLAR) * Math.cos(VIEW_AZIMUTH)
+      );
+    }
     // Near/far escalados ao tamanho do modelo — Fazenda Sossego é ~7x maior
     // que Pedra Furada, um near/far fixo cortaria geometria de um dos dois.
     perspective.near = Math.max(fitDistance / 10000, 0.02);
@@ -89,7 +97,7 @@ function TerrainModel({
       controls.maxDistance = fitDistance * 2.5;
       controls.update();
     }
-  }, [cloned, get, controlsRef]);
+  }, [cloned, get, controlsRef, model.initialCameraPosition, model.initialCameraTarget]);
 
   return <primitive object={cloned} />;
 }
@@ -130,6 +138,10 @@ function Viewer3DCanvas({
   onSelectSlide?: (index: number) => void;
 }) {
   const controlsRef = useRef<OrbitControlsImpl | null>(null);
+  // Controles só ficam ativos depois de um clique explícito — assim o
+  // scroll do mouse passando por cima do modelo rola a página normalmente,
+  // em vez de dar zoom no canvas sem o usuário querer.
+  const [active, setActive] = useState(false);
 
   return (
     <div
@@ -141,6 +153,7 @@ function Viewer3DCanvas({
         if (e.button === 1) e.preventDefault();
       }}
       onAuxClick={(e) => e.preventDefault()}
+      onMouseLeave={() => setActive(false)}
     >
       <Canvas
         key={model.id}
@@ -149,10 +162,11 @@ function Viewer3DCanvas({
       >
         <SceneLighting />
         <Suspense fallback={<Fallback />}>
-          <TerrainModel url={model.url} controlsRef={controlsRef} />
+          <TerrainModel model={model} controlsRef={controlsRef} />
         </Suspense>
         <OrbitControls
           ref={controlsRef}
+          enabled={active}
           enablePan
           screenSpacePanning
           mouseButtons={{
@@ -165,8 +179,32 @@ function Viewer3DCanvas({
         />
       </Canvas>
 
+      {!active && (
+        <button
+          type="button"
+          onClick={() => setActive(true)}
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 bg-black/25 text-center transition-colors hover:bg-black/35"
+        >
+          <span className="flex h-11 w-11 items-center justify-center rounded-full border border-white/30 bg-black/50">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M9 3v7.5M9 3L6.5 5.5M9 3l2.5 2.5M15 21v-7.5M15 21l-2.5-2.5M15 21l2.5-2.5M3 15h7.5M3 15l2.5-2.5M3 15l2.5 2.5M21 9h-7.5M21 9l-2.5 2.5M21 9l-2.5-2.5"
+                stroke="#fff"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </span>
+          <span className="text-sm font-medium text-white">Clique para interagir</span>
+          <span className="max-w-[220px] text-[11px] leading-relaxed text-white/60">
+            Arraste para mover · Scroll para zoom · Botão do meio para girar
+          </span>
+        </button>
+      )}
+
       {slides && slides.length > 1 && (
-        <div className="absolute top-4 left-1/2 flex -translate-x-1/2 gap-2">
+        <div className="absolute top-4 left-1/2 z-20 flex -translate-x-1/2 gap-2">
           {slides.map((slide, index) => (
             <button
               key={slide.id}
@@ -222,13 +260,17 @@ export default function Viewer3D({ compact = false }: { compact?: boolean }) {
         </div>
       </div>
 
-      <Viewer3DCanvas
-        height={480}
-        model={MODELS[activeIndex]}
-        slides={MODELS}
-        activeIndex={activeIndex}
-        onSelectSlide={setActiveIndex}
-      />
+      <div className="mx-auto max-w-6xl px-6">
+        <div className="overflow-hidden rounded-2xl border border-white/10">
+          <Viewer3DCanvas
+            height={480}
+            model={MODELS[activeIndex]}
+            slides={MODELS}
+            activeIndex={activeIndex}
+            onSelectSlide={setActiveIndex}
+          />
+        </div>
+      </div>
 
       <div className="pb-20" />
     </section>
