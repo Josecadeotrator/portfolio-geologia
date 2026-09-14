@@ -3,7 +3,7 @@ const services = [
     number: "01",
     title: "Regularize sua terra",
     description:
-      "Georreferenciamento com precisão RTK para regularização fundiária junto ao INCRA e SEAPA. Topografia completa, delimitação de divisas e documentação técnica para cartório.",
+      "Segurança jurídica para o seu imóvel. Georreferenciamento certificado pelo INCRA que destrava venda, desmembramento e herança — sem surpresas no cartório.",
     tags: ["Georreferenciamento", "Topografia", "INCRA", "SEAPA"],
     icon: (
       <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
